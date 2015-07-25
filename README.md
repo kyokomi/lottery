@@ -1,6 +1,8 @@
 lottery
 ==============
 
+[![Circle CI](https://circleci.com/gh/kyokomi/lottery.svg?style=svg)](https://circleci.com/gh/kyokomi/lottery)
+
 lottery is rand base wrapper library
 
 ## Install
