@@ -7,28 +7,76 @@ import (
 	"time"
 )
 
+type DropItem struct {
+	ItemID   int
+	ItemName string
+	DropProb int
+}
+
+func (d DropItem) Prob() int {
+	return d.DropProb
+}
+
+var _ Interface = (*DropItem)(nil)
+
+func TestLots(t *testing.T) {
+	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+
+	dropItems := []Interface{
+		DropItem{ItemID: 1, ItemName: "エリクサ", DropProb: 10},
+		DropItem{ItemID: 2, ItemName: "エーテル", DropProb: 20},
+		DropItem{ItemID: 3, ItemName: "ポーション", DropProb: 30},
+		DropItem{ItemID: 4, ItemName: "ハズレ", DropProb: 40},
+	}
+
+	check := 1000000
+	countMap := map[DropItem]int{}
+	for i := 0; i < check; i++ {
+		lotIdx := l.Lots(dropItems...)
+		if lotIdx == -1 {
+			t.Fatal("lot error")
+		}
+
+		switch d := dropItems[lotIdx].(type) {
+		case DropItem:
+			countMap[d]++
+		}
+	}
+
+	for dropItem, count := range countMap {
+		result := float64(count) / float64(check) * 100
+		prob := float64(dropItem.Prob())
+		// 誤差0.1チェック
+		if (prob-0.1) <= result && result < (prob+0.1) {
+			fmt.Printf("ok %3.5f%%(%7d) : %s\n", result, count, dropItem.ItemName)
+		} else {
+			t.Errorf("error %3.5f%%(%7d) : %s\n", result, count, dropItem.ItemName)
+		}
+	}
+}
+
 func TestLot(t *testing.T) {
 	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	check := 1000000
-	prob := 4 // 4%
+	prob := float64(4.0) // 4%
 	count := 0
 	for i := 0; i < check; i++ {
-		if l.Lot(prob) {
+		if l.Lot(int(prob)) {
 			count++
 		}
 	}
 	result := float64(count) / float64(check) * 100
 
-	// 約4% check
-	if 3.9 <= result && result < 4.1 {
+	// 誤差0.1チェック
+	if (prob-0.1) <= result && result < (prob+0.1) {
 		fmt.Printf("lottery ok %f%%\n", result)
 	} else {
 		t.Errorf("lottery error %f%%", result)
 	}
 }
 
-func TestLot_0_100(t *testing.T) {
+func TestLot_0to100(t *testing.T) {
 	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	testCases := []struct {
