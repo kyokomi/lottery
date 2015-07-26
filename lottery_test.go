@@ -29,7 +29,7 @@ func TestLots(t *testing.T) {
 		DropItem{ItemID: 4, ItemName: "ハズレ", DropProb: 40},
 	}
 
-	check := 1000000
+	check := 2000000
 	countMap := map[DropItem]int{}
 	for i := 0; i < check; i++ {
 		lotIdx := l.Lots(dropItems...)
