@@ -32,15 +32,20 @@ func New(rd *rand.Rand) Lottery {
 
 // Lot 0〜100で抽選した結果を返します
 func (l Lottery) Lot(prob int) bool {
+	return l.LotOf(prob, 100)
+}
+
+// LotOf 0〜totalProbで抽選した結果を返します
+func (l Lottery) LotOf(prob int, totalProb int) bool {
 	if prob < 0 {
 		return false
 	}
 
-	if prob > 100 {
+	if prob > totalProb {
 		return true
 	}
 
-	return l.rd.Intn(100)+1 <= prob
+	return l.rd.Intn(totalProb)+1 <= prob
 }
 
 // Lots lottery.Interfaceを実装した複数の抽選対象から1件抽選した、indexを返します
