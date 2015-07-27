@@ -1,6 +1,7 @@
 test:
   pre:
-    - go get github.com/axw/gocov/gocov
+    - go get code.google.com/p/go.tools/cmd/cover
     - go get github.com/mattn/goveralls
   post:
-    - goveralls -v -service=circle-ci -repotoken $COVERALLS_TOKEN .
+    - go test -v -covermode=count -coverprofile=coverage.out
+    - goveralls -coverprofile=coverage.out -service=circle-ci -repotoken $COVERALLS_TOKEN
