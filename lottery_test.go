@@ -76,6 +76,28 @@ func TestLot(t *testing.T) {
 	}
 }
 
+func TestLotOf(t *testing.T) {
+	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+
+	check := 1000000
+	prob := float64(0.5) // 0.5%
+	count := 0
+	for i := 0; i < check; i++ {
+		// 1万分率で計算
+		if l.LotOf(int(prob/100*10000), 10000) {
+			count++
+		}
+	}
+	result := float64(count) / float64(check) * 100
+
+	// 誤差0.1チェック
+	if (prob-0.1) <= result && result < (prob+0.1) {
+		fmt.Printf("lottery ok %f%%\n", result)
+	} else {
+		t.Errorf("lottery error %f%%", result)
+	}
+}
+
 func TestLot_0to100(t *testing.T) {
 	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
 

@@ -1,3 +1,4 @@
+// Package lottery math/randベースの抽選ライブラリ
 package lottery
 
 import (
@@ -5,26 +6,31 @@ import (
 	"sort"
 )
 
+// Lottery math/randのwrapper
 type Lottery struct {
 	rd *rand.Rand
 }
 
+// Interface 複数の抽選対象を扱う際のインターフェースを提供します
 type Interface interface {
 	Prob() int
 }
 
+// lotterySort 確率が低い順に並び替えるsortインタフェースの実装
 type lotterySort []Interface
 
 func (s lotterySort) Len() int           { return len(s) }
 func (s lotterySort) Less(i, j int) bool { return s[i].Prob() < s[j].Prob() }
 func (s lotterySort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
+// New return lottery library
 func New(rd *rand.Rand) Lottery {
 	return Lottery{
 		rd: rd,
 	}
 }
 
+// Lot 0〜100で抽選した結果を返します
 func (l Lottery) Lot(prob int) bool {
 	if prob < 0 {
 		return false
@@ -37,6 +43,7 @@ func (l Lottery) Lot(prob int) bool {
 	return l.rd.Intn(100)+1 <= prob
 }
 
+// Lots lottery.Interfaceを実装した複数の抽選対象から1件抽選した、indexを返します
 func (l Lottery) Lots(lots ...Interface) int {
 	probSum := 0
 	for _, l := range lots {

@@ -2,6 +2,7 @@ lottery
 ==============
 
 [![Circle CI](https://circleci.com/gh/kyokomi/lottery.svg?style=svg)](https://circleci.com/gh/kyokomi/lottery)
+[![GoDoc](https://godoc.org/github.com/kyokomi/lottery?status.svg)](https://godoc.org/github.com/kyokomi/lottery)
 
 lottery is rand base wrapper library
 
