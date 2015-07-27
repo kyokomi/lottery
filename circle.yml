@@ -1,0 +1,6 @@
+test:
+  pre:
+    - go get github.com/axw/gocov/gocov
+    - go get github.com/mattn/goveralls
+  post:
+    - goveralls -v -service=circle-ci -repotoken $COVERALLS_TOKEN .
