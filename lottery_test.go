@@ -1,10 +1,12 @@
-package lottery
+package lottery_test
 
 import (
 	"fmt"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/kyokomi/lottery"
 )
 
 type DropItem struct {
@@ -17,12 +19,12 @@ func (d DropItem) Prob() int {
 	return d.DropProb
 }
 
-var _ Interface = (*DropItem)(nil)
+var _ lottery.Interface = (*DropItem)(nil)
 
 func TestLots(t *testing.T) {
-	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
-	dropItems := []Interface{
+	dropItems := []lottery.Interface{
 		DropItem{ItemID: 1, ItemName: "エリクサ", DropProb: 10},
 		DropItem{ItemID: 2, ItemName: "エーテル", DropProb: 20},
 		DropItem{ItemID: 3, ItemName: "ポーション", DropProb: 30},
@@ -56,7 +58,7 @@ func TestLots(t *testing.T) {
 }
 
 func TestLot(t *testing.T) {
-	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	check := 1000000
 	prob := float64(4.0) // 4%
@@ -77,7 +79,7 @@ func TestLot(t *testing.T) {
 }
 
 func TestLotOf(t *testing.T) {
-	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	check := 1000000
 	prob := float64(0.5) // 0.5%
@@ -99,7 +101,7 @@ func TestLotOf(t *testing.T) {
 }
 
 func TestLot_0to100(t *testing.T) {
-	l := New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	testCases := []struct {
 		prob   int
