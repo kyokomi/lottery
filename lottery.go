@@ -1,4 +1,4 @@
-// Package lottery math/randベースの抽選ライブラリ
+// Package lottery math/rand based lottery library.
 package lottery
 
 import (
@@ -6,36 +6,36 @@ import (
 	"sort"
 )
 
-// Lottery math/randのwrapper
+// Lottery math/rand wrapper.
 type Lottery struct {
 	rd *rand.Rand
 }
 
-// Interface 複数の抽選対象を扱う際のインターフェースを提供します
+// Interface provide an interface to handle multiple lottery object.
 type Interface interface {
 	Prob() int
 }
 
-// lotterySort 確率が低い順に並び替えるsortインタフェースの実装
+// lotterySort probability is low order sort interface.
 type lotterySort []Interface
 
 func (s lotterySort) Len() int           { return len(s) }
 func (s lotterySort) Less(i, j int) bool { return s[i].Prob() < s[j].Prob() }
 func (s lotterySort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-// New return lottery library
+// New return lottery library.
 func New(rd *rand.Rand) Lottery {
 	return Lottery{
 		rd: rd,
 	}
 }
 
-// Lot 0〜100で抽選した結果を返します
+// Lot the result of lottery at 0-100 to return.
 func (l Lottery) Lot(prob int) bool {
 	return l.LotOf(prob, 100)
 }
 
-// LotOf 0〜totalProbで抽選した結果を返します
+// LotOf the result of lottery at specified value to return.
 func (l Lottery) LotOf(prob int, totalProb int) bool {
 	if prob < 0 {
 		return false
@@ -48,7 +48,7 @@ func (l Lottery) LotOf(prob int, totalProb int) bool {
 	return l.rd.Intn(totalProb)+1 <= prob
 }
 
-// Lots lottery.Interfaceを実装した複数の抽選対象から1件抽選した、indexを返します
+// Lots the result index of One lottery from multiple lottery object to return.
 func (l Lottery) Lots(lots ...Interface) int {
 	probSum := 0
 	for _, l := range lots {

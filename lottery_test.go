@@ -10,7 +10,6 @@ import (
 )
 
 type DropItem struct {
-	ItemID   int
 	ItemName string
 	DropProb int
 }
@@ -21,18 +20,31 @@ func (d DropItem) Prob() int {
 
 var _ lottery.Interface = (*DropItem)(nil)
 
+type Trap struct {
+	TrapName string
+	prob     int
+}
+
+func (t Trap) Prob() int {
+	return t.prob
+}
+
+var _ lottery.Interface = (*Trap)(nil)
+
 func TestLots(t *testing.T) {
 	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
 
 	dropItems := []lottery.Interface{
-		DropItem{ItemID: 1, ItemName: "エリクサ", DropProb: 10},
-		DropItem{ItemID: 2, ItemName: "エーテル", DropProb: 20},
-		DropItem{ItemID: 3, ItemName: "ポーション", DropProb: 30},
-		DropItem{ItemID: 4, ItemName: "ハズレ", DropProb: 40},
+		DropItem{ItemName: "エリクサ", DropProb: 5},
+		DropItem{ItemName: "エーテル", DropProb: 10},
+		DropItem{ItemName: "ポーション", DropProb: 20},
+		DropItem{ItemName: "ハズレ", DropProb: 50},
+		Trap{TrapName: "地雷", prob: 5},
+		Trap{TrapName: "トラバサミ", prob: 10},
 	}
 
 	check := 2000000
-	countMap := map[DropItem]int{}
+	countMap := map[lottery.Interface]int{}
 	for i := 0; i < check; i++ {
 		lotIdx := l.Lots(dropItems...)
 		if lotIdx == -1 {
@@ -40,19 +52,28 @@ func TestLots(t *testing.T) {
 		}
 
 		switch d := dropItems[lotIdx].(type) {
-		case DropItem:
+		case DropItem, Trap:
 			countMap[d]++
 		}
 	}
 
-	for dropItem, count := range countMap {
+	for item, count := range countMap {
 		result := float64(count) / float64(check) * 100
-		prob := float64(dropItem.Prob())
-		// 誤差0.1チェック
+		prob := float64(item.Prob())
+
+		name := ""
+		switch t := item.(type) {
+		case DropItem:
+			name = t.ItemName
+		case Trap:
+			name = t.TrapName
+		}
+
+		// 0.1 check
 		if (prob-0.1) <= result && result < (prob+0.1) {
-			fmt.Printf("ok %3.5f%%(%7d) : %s\n", result, count, dropItem.ItemName)
+			fmt.Printf("ok %3.5f%%(%7d) : %s\n", result, count, name)
 		} else {
-			t.Errorf("error %3.5f%%(%7d) : %s\n", result, count, dropItem.ItemName)
+			t.Errorf("error %3.5f%%(%7d) : %s\n", result, count, name)
 		}
 	}
 }
@@ -70,7 +91,7 @@ func TestLot(t *testing.T) {
 	}
 	result := float64(count) / float64(check) * 100
 
-	// 誤差0.1チェック
+	// 0.1 check
 	if (prob-0.1) <= result && result < (prob+0.1) {
 		fmt.Printf("lottery ok %f%%\n", result)
 	} else {
@@ -85,14 +106,14 @@ func TestLotOf(t *testing.T) {
 	prob := float64(0.5) // 0.5%
 	count := 0
 	for i := 0; i < check; i++ {
-		// 1万分率で計算
+		// 10000 minutes rate
 		if l.LotOf(int(prob/100*10000), 10000) {
 			count++
 		}
 	}
 	result := float64(count) / float64(check) * 100
 
-	// 誤差0.1チェック
+	// 0.1 check
 	if (prob-0.1) <= result && result < (prob+0.1) {
 		fmt.Printf("lottery ok %f%%\n", result)
 	} else {
