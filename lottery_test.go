@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/kyokomi/lottery"
 )
 
@@ -138,5 +139,67 @@ func TestLot_0to100(t *testing.T) {
 		if l.Lot(testCase.prob) != testCase.result {
 			t.Errorf("lottery error not %f%%", testCase.prob)
 		}
+	}
+}
+
+func TestLots_error(t *testing.T) {
+	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	probMock := lottery.NewMockInterface(ctrl)
+	probMock.EXPECT().Prob().Return(0)
+	probMock.EXPECT().Prob().Return(0)
+
+	idx := l.Lots(probMock, probMock)
+	if idx != -1 {
+		t.Errorf("lots idx error %d != %d", idx, -1)
+	}
+}
+
+func TestLotMock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	lotMock := lottery.NewMockLottery(ctrl)
+	lotMock.EXPECT().Lot(1).Return(true)
+	lotMock.EXPECT().Lot(2).Return(false)
+
+	if !lotMock.Lot(1) {
+		t.Errorf("mock error")
+	}
+
+	if lotMock.Lot(2) {
+		t.Errorf("mock error")
+	}
+}
+
+func TestLotOfMock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	lotMock := lottery.NewMockLottery(ctrl)
+	lotMock.EXPECT().LotOf(1, 100).Return(true)
+	lotMock.EXPECT().LotOf(2, 100).Return(false)
+
+	if !lotMock.LotOf(1, 100) {
+		t.Errorf("mock error")
+	}
+
+	if lotMock.LotOf(2, 100) {
+		t.Errorf("mock error")
+	}
+}
+
+func TestLotsMock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	probMock1 := lottery.NewMockInterface(ctrl)
+	probMock2 := lottery.NewMockInterface(ctrl)
+
+	lotMock := lottery.NewMockLottery(ctrl)
+	lotMock.EXPECT().Lots(probMock1, probMock2).Return(1)
+
+	if lotMock.Lots(probMock1, probMock2) != 1 {
+		t.Errorf("mock error")
 	}
 }

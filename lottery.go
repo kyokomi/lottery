@@ -6,6 +6,8 @@ import (
 	"sort"
 )
 
+//go:generate mockgen -package lottery -source lottery.go -destination lottery_mock.go
+
 // Lottery math/rand wrapper.
 type Lottery interface {
 	Lot(prob int) bool
@@ -67,15 +69,17 @@ func (l lottery) Lots(lots ...Interface) int {
 
 	randomProbability := l.rd.Intn(probSum) + 1
 	tempProbability := 0
+	lotIndex := -1
 
 	sort.Sort(lotterySort(lots))
+
 	for idx, l := range lots {
 		tempProbability += l.Prob()
 
 		if tempProbability >= randomProbability {
-			return idx
+			lotIndex = idx
+			break
 		}
 	}
-
-	return -1
+	return lotIndex
 }
