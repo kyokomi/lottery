@@ -7,7 +7,13 @@ import (
 )
 
 // Lottery math/rand wrapper.
-type Lottery struct {
+type Lottery interface {
+	Lot(prob int) bool
+	LotOf(prob int, totalProb int) bool
+	Lots(lots ...Interface) int
+}
+
+type lottery struct {
 	rd *rand.Rand
 }
 
@@ -25,18 +31,18 @@ func (s lotterySort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 // New return lottery library.
 func New(rd *rand.Rand) Lottery {
-	return Lottery{
+	return &lottery{
 		rd: rd,
 	}
 }
 
 // Lot the result of lottery at 0-100 to return.
-func (l Lottery) Lot(prob int) bool {
+func (l lottery) Lot(prob int) bool {
 	return l.LotOf(prob, 100)
 }
 
 // LotOf the result of lottery at specified value to return.
-func (l Lottery) LotOf(prob int, totalProb int) bool {
+func (l lottery) LotOf(prob int, totalProb int) bool {
 	if prob < 0 {
 		return false
 	}
@@ -49,7 +55,7 @@ func (l Lottery) LotOf(prob int, totalProb int) bool {
 }
 
 // Lots the result index of One lottery from multiple lottery object to return.
-func (l Lottery) Lots(lots ...Interface) int {
+func (l lottery) Lots(lots ...Interface) int {
 	probSum := 0
 	for _, l := range lots {
 		probSum += l.Prob()
