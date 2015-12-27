@@ -4,6 +4,7 @@ package lottery
 import (
 	"math/rand"
 	"sort"
+	"time"
 )
 
 //go:generate mockgen -package lottery -source lottery.go -destination lottery_mock.go
@@ -30,6 +31,11 @@ type lotterySort []Interface
 func (s lotterySort) Len() int           { return len(s) }
 func (s lotterySort) Less(i, j int) bool { return s[i].Prob() < s[j].Prob() }
 func (s lotterySort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+
+// NewDefault return default rand lottery library.
+func NewDefault() Lottery {
+	return New(rand.New(rand.NewSource(time.Now().UnixNano())))
+}
 
 // New return lottery library.
 func New(rd *rand.Rand) Lottery {
