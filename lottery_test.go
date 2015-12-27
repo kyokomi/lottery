@@ -2,9 +2,7 @@ package lottery_test
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/kyokomi/lottery"
@@ -33,7 +31,7 @@ func (t Trap) Prob() int {
 var _ lottery.Interface = (*Trap)(nil)
 
 func TestLots(t *testing.T) {
-	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.NewDefault()
 
 	dropItems := []lottery.Interface{
 		DropItem{ItemName: "エリクサ", DropProb: 5},
@@ -80,7 +78,7 @@ func TestLots(t *testing.T) {
 }
 
 func TestLot(t *testing.T) {
-	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.NewDefault()
 
 	check := 1000000
 	prob := float64(4.0) // 4%
@@ -101,7 +99,7 @@ func TestLot(t *testing.T) {
 }
 
 func TestLotOf(t *testing.T) {
-	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.NewDefault()
 
 	check := 1000000
 	prob := float64(0.5) // 0.5%
@@ -123,7 +121,7 @@ func TestLotOf(t *testing.T) {
 }
 
 func TestLot_0to100(t *testing.T) {
-	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.NewDefault()
 
 	testCases := []struct {
 		prob   int
@@ -143,7 +141,7 @@ func TestLot_0to100(t *testing.T) {
 }
 
 func TestLots_error(t *testing.T) {
-	l := lottery.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	l := lottery.NewDefault()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
