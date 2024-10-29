@@ -135,7 +135,7 @@ func TestLot_0to100(t *testing.T) {
 
 	for _, testCase := range testCases {
 		if l.Lot(testCase.prob) != testCase.result {
-			t.Errorf("lottery error not %f%%", testCase.prob)
+			t.Errorf("lottery error not %x%%", testCase.prob)
 		}
 	}
 }
